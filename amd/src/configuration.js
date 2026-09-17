@@ -24,6 +24,8 @@
 import {
     fontsizeButtonName,
     fontsizeMenuItemName,
+    fontcolorButtonName,
+    fontcolorMenuItemName,
 } from './common';
 
 import {
@@ -33,7 +35,7 @@ import {
 
 const getToolbarConfiguration = (instanceConfig) => {
     let toolbar = instanceConfig.toolbar;
-    toolbar = addToolbarButtons(toolbar, 'formatting', [fontsizeButtonName]);
+    toolbar = addToolbarButtons(toolbar, 'formatting', [fontsizeButtonName, fontcolorButtonName]);
     return toolbar;
 };
 
@@ -41,6 +43,7 @@ const getMenuConfiguration = (instanceConfig) => {
     let menu = instanceConfig.menu;
     menu = addMenubarItem(menu, 'format', [
         fontsizeMenuItemName,
+        fontcolorMenuItemName,
     ].join(' '));
 
     return menu;

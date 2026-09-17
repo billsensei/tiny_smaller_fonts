@@ -85,11 +85,20 @@ final class plugininfo_test extends advanced_testcase {
         $context = $this->get_module_context();
         set_config('fontsizes', '', 'tiny_smaller_fonts');
         set_config('fontsizeunit', '', 'tiny_smaller_fonts');
+        set_config('fontcolors', '', 'tiny_smaller_fonts');
 
         $config = plugininfo::get_plugin_configuration_for_context($context, [], []);
 
         $this->assertEquals([8, 10, 12, 14], $config['fontsizes']);
         $this->assertEquals('pt', $config['fontsizeunit']);
+        $this->assertEquals([
+            ['value' => '#000000', 'label' => 'Black'],
+            ['value' => '#e03e2d', 'label' => 'Red'],
+            ['value' => '#f1c232', 'label' => 'Yellow'],
+            ['value' => '#6aa84f', 'label' => 'Green'],
+            ['value' => '#3d85c6', 'label' => 'Blue'],
+            ['value' => '#674ea7', 'label' => 'Purple'],
+        ], $config['fontcolors']);
     }
 
     /**
@@ -99,10 +108,34 @@ final class plugininfo_test extends advanced_testcase {
         $context = $this->get_module_context();
         set_config('fontsizes', "9\r\n11\r\n13", 'tiny_smaller_fonts');
         set_config('fontsizeunit', 'px', 'tiny_smaller_fonts');
+        set_config('fontcolors', "#ff0000|Bright red\r\n#00ff00\r\nnotacolour\r\n", 'tiny_smaller_fonts');
 
         $config = plugininfo::get_plugin_configuration_for_context($context, [], []);
 
         $this->assertEquals([9, 11, 13], $config['fontsizes']);
         $this->assertEquals('px', $config['fontsizeunit']);
+        $this->assertEquals([
+            ['value' => '#ff0000', 'label' => 'Bright red'],
+            ['value' => '#00ff00', 'label' => '#00ff00'],
+        ], $config['fontcolors']);
+    }
+
+    /**
+     * When every configured font colour is invalid, the documented defaults are used instead.
+     */
+    public function test_get_plugin_configuration_for_context_invalid_colors_falls_back_to_defaults(): void {
+        $context = $this->get_module_context();
+        set_config('fontcolors', "notacolour\r\nalsoinvalid", 'tiny_smaller_fonts');
+
+        $config = plugininfo::get_plugin_configuration_for_context($context, [], []);
+
+        $this->assertEquals([
+            ['value' => '#000000', 'label' => 'Black'],
+            ['value' => '#e03e2d', 'label' => 'Red'],
+            ['value' => '#f1c232', 'label' => 'Yellow'],
+            ['value' => '#6aa84f', 'label' => 'Green'],
+            ['value' => '#3d85c6', 'label' => 'Blue'],
+            ['value' => '#674ea7', 'label' => 'Purple'],
+        ], $config['fontcolors']);
     }
 }

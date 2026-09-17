@@ -29,4 +29,6 @@ export default {
     icon: component,
     fontsizeButtonName: `${component}_fontsize`,
     fontsizeMenuItemName: `${component}_fontsize`,
+    fontcolorButtonName: `${component}_fontcolor`,
+    fontcolorMenuItemName: `${component}_fontcolor`,
 };

@@ -60,4 +60,23 @@ if ($ADMIN->fulltree) {
         'pt',
         $units
     ));
+
+    $colordefaults = [
+        '#000000|Black',
+        '#e03e2d|Red',
+        '#f1c232|Yellow',
+        '#6aa84f|Green',
+        '#3d85c6|Blue',
+        '#674ea7|Purple',
+    ];
+
+    $settings->add(new admin_setting_configtextarea(
+        'tiny_smaller_fonts/fontcolors',
+        get_string('fontcolors', 'tiny_smaller_fonts'),
+        get_string('fontcolors_desc', 'tiny_smaller_fonts'),
+        implode("\r\n", $colordefaults),
+        PARAM_TEXT,
+        80,
+        10
+    ));
 }

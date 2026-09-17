@@ -26,6 +26,7 @@ import {pluginName} from './common';
 
 const fontsizes = getPluginOptionName(pluginName, 'fontsizes');
 const fontsizeunit = getPluginOptionName(pluginName, 'fontsizeunit');
+const fontcolors = getPluginOptionName(pluginName, 'fontcolors');
 
 /**
  * Register the options for the Tiny Smaller fonts plugin.
@@ -42,6 +43,11 @@ export const register = (editor) => {
     editor.options.register(fontsizeunit, {
         processor: 'string',
         "default": 'pt',
+    });
+
+    editor.options.register(fontcolors, {
+        processor: 'Array',
+        "default": [],
     });
 
 };
@@ -61,3 +67,14 @@ export const getFontSizeList = (editor) => editor.options.get(fontsizes);
  * @returns {string} The CSS unit to apply to font sizes.
  */
 export const getFontSizeUnit = (editor) => editor.options.get(fontsizeunit);
+
+/**
+ * Get the list of font colours.
+ *
+ * Each entry is an object of the form {value, label} where value is a CSS colour
+ * (for example a hex code) and label is the text shown in the picker.
+ *
+ * @param {TinyMCE.editor} editor
+ * @returns {Array} Array.
+ */
+export const getFontColorList = (editor) => editor.options.get(fontcolors);

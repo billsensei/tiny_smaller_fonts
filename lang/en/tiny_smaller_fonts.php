@@ -25,11 +25,15 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['button_fontcolor'] = 'Font colour';
 $string['button_fontsize'] = 'Font size';
+$string['fontcolors'] = 'Font colours';
+$string['fontcolors_desc'] = 'List of available font colours separated by a new line, in the format "#hexcode|Label" (for example "#e03e2d|Red"). The label is optional; if it is omitted the hex code is used instead.';
 $string['fontsizes'] = 'Font sizes';
 $string['fontsizes_desc'] = 'List of available font sizes separated by a new line.';
 $string['fontsizeunit'] = 'Font size unit';
 $string['fontsizeunit_desc'] = 'The CSS unit applied to each font size.';
+$string['menuitem_fontcolor'] = 'Font colour';
 $string['menuitem_fontsize'] = 'Font size';
 $string['pluginname'] = 'Smaller fonts plugin';
 $string['privacy:metadata'] = 'The Smaller fonts plugin does not store any personal data.';

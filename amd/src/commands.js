@@ -21,13 +21,15 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-import {getFontSizeList, getFontSizeUnit} from './options';
+import {getFontSizeList, getFontSizeUnit, getFontColorList} from './options';
 import {getButtonImage} from 'editor_tiny/utils';
 import {get_string as getString} from 'core/str';
 import {
     component,
     fontsizeButtonName,
     fontsizeMenuItemName,
+    fontcolorButtonName,
+    fontcolorMenuItemName,
     icon,
 } from './common';
 
@@ -40,6 +42,35 @@ const handleAction = (editor, fontsize) => {
     editor.formatter.apply('fontsize', {value: fontsize + getFontSizeUnit(editor)});
 };
 
+/**
+ * Handle the font colour action for the plugin.
+ * @param {TinyMCE.editor} editor The tinyMCE editor instance.
+ * @param {string} color The CSS colour to apply.
+ */
+const handleColorAction = (editor, color) => {
+    editor.formatter.apply('forecolor', {value: color});
+};
+
+// The built-in TinyMCE icon used for the font colour button and menu items.
+const colorIcon = 'text-color';
+
+/**
+ * Get the name to use when registering a colour swatch icon.
+ *
+ * @param {number} index
+ * @returns {string}
+ */
+const getColorSwatchIconName = (index) => `${component}_swatch_${index}`;
+
+/**
+ * Build a small square SVG icon used to preview a font colour in the menu.
+ *
+ * @param {string} color
+ * @returns {string}
+ */
+const getColorSwatchSvg = (color) => '<svg width="24" height="24" viewBox="0 0 24 24" ' +
+    `xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="2" ` +
+    `fill="${color}" stroke="#8c8c8c" stroke-width="1"/></svg>`;
 
 /**
  * Get the setup function for the buttons.
@@ -53,15 +84,20 @@ export const getSetup = async() => {
     const [
         fontsizeButtonNameTitle,
         fontsizeMenuItemNameTitle,
+        fontcolorButtonNameTitle,
+        fontcolorMenuItemNameTitle,
         buttonImage,
     ] = await Promise.all([
         getString('button_fontsize', component),
         getString('menuitem_fontsize', component),
+        getString('button_fontcolor', component),
+        getString('menuitem_fontcolor', component),
         getButtonImage('icon', component),
     ]);
 
     return (editor) => {
         const fontSizeList = getFontSizeList(editor);
+        const fontColorList = getFontColorList(editor);
 
         // Register the Moodle SVG as an icon suitable for use as a TinyMCE toolbar button.
         editor.ui.registry.addIcon(icon, buttonImage.html);
@@ -109,6 +145,54 @@ export const getSetup = async() => {
             fetch: (callback) => {
                 // Pass the dynamically generated items to the callback.
                 callback(submenuItems);
+            },
+        });
+
+        /**
+         * Handle the font colour menu item action.
+         *
+         * @param {Editor} editor - The editor instance.
+         * @param {string} color - The font colour to apply.
+         * @returns {Function} - The action handler function.
+         */
+        function handleFontColor(editor, color) {
+            return () => handleColorAction(editor, color);
+        }
+
+        // Create an array of colour submenu items, registering a small swatch icon for each one.
+        const colorSubmenuItems = fontColorList.map(({value, label}, index) => {
+            const swatchIcon = getColorSwatchIconName(index);
+            editor.ui.registry.addIcon(swatchIcon, getColorSwatchSvg(value));
+
+            return {
+                type: 'menuitem',
+                icon: swatchIcon,
+                text: label || value,
+                onAction: handleFontColor(editor, value),
+            };
+        });
+
+        // Add the fontcolor Menu Item.
+        // This allows it to be added to a standard menu, or a context menu.
+        editor.ui.registry.addMenuItem(fontcolorMenuItemName, {
+            icon: colorIcon,
+            text: fontcolorMenuItemNameTitle,
+            onAction: () => handleColorAction(editor),
+        });
+
+        // Add the nested menu item to the editor UI.
+        editor.ui.registry.addNestedMenuItem(fontcolorMenuItemName, {
+            icon: colorIcon,
+            text: fontcolorMenuItemNameTitle,
+            getSubmenuItems: () => colorSubmenuItems,
+        });
+
+        editor.ui.registry.addMenuButton(fontcolorButtonName, {
+            icon: colorIcon,
+            tooltip: fontcolorButtonNameTitle,
+            fetch: (callback) => {
+                // Pass the dynamically generated items to the callback.
+                callback(colorSubmenuItems);
             },
         });
 

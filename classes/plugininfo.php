@@ -46,6 +46,18 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
     private const DEFAULT_FONTSIZEUNIT = 'pt';
 
     /**
+     * Default font colours, used whenever none have been configured.
+     */
+    private const DEFAULT_FONTCOLORS = [
+        ['value' => '#000000', 'label' => 'Black'],
+        ['value' => '#e03e2d', 'label' => 'Red'],
+        ['value' => '#f1c232', 'label' => 'Yellow'],
+        ['value' => '#6aa84f', 'label' => 'Green'],
+        ['value' => '#3d85c6', 'label' => 'Blue'],
+        ['value' => '#674ea7', 'label' => 'Purple'],
+    ];
+
+    /**
      * Get available buttons.
      *
      * @return array
@@ -93,6 +105,54 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         $sizes = preg_split('/\r\n|\r|\n/', $rawsizes);
         $config['fontsizes'] = array_values(array_filter(array_map('intval', $sizes)));
         $config['fontsizeunit'] = get_config('tiny_smaller_fonts', 'fontsizeunit') ?: self::DEFAULT_FONTSIZEUNIT;
+
+        $rawcolors = get_config('tiny_smaller_fonts', 'fontcolors');
+        if ($rawcolors === false || trim($rawcolors) === '') {
+            // The setting default hasn't been written to config yet (e.g. plugin was
+            // updated but the site hasn't gone through an upgrade yet). Fall back to
+            // the same default used in settings.php so the picker still works.
+            $colors = self::DEFAULT_FONTCOLORS;
+        } else {
+            $colors = self::parse_fontcolors($rawcolors);
+            if (empty($colors)) {
+                $colors = self::DEFAULT_FONTCOLORS;
+            }
+        }
+        $config['fontcolors'] = $colors;
+
         return $config;
+    }
+
+    /**
+     * Parse the raw admin-configured font colours setting into a list of value/label pairs.
+     *
+     * Each line is expected to be in the format "#hexcode|Label", with the label being
+     * optional. Lines which do not contain a valid hex colour are ignored.
+     *
+     * @param string $raw
+     * @return array
+     */
+    private static function parse_fontcolors(string $raw): array {
+        $colors = [];
+        $lines = preg_split('/\r\n|\r|\n/', $raw);
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ($line === '') {
+                continue;
+            }
+
+            [$value, $label] = array_pad(explode('|', $line, 2), 2, null);
+            $value = trim($value);
+            if (!preg_match('/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/', $value)) {
+                continue;
+            }
+
+            $label = $label !== null ? trim($label) : '';
+            $colors[] = [
+                'value' => $value,
+                'label' => $label !== '' ? $label : $value,
+            ];
+        }
+        return $colors;
     }
 }
